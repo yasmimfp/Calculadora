@@ -1,208 +1,150 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Calculadora {
-    public partial class Form1 : Form {
+namespace Calculadora
+{
+    public partial class Form1 : Form
+    {
+        private decimal _resultadoAcumulado;
+        private Operacao _operacaoAtual = Operacao.Nenhuma;
+        private bool _novaEntrada; 
 
-        decimal calculo;
-        bool adicao = false;
-        bool subtracao = false;
-        bool multiplicacao = false;
-        bool divisao = false;
-        bool resultado = false;
-        bool porcentagem = false;
-        public Form1() {
+        public Form1()
+        {
             InitializeComponent();
         }
-        private void btnZero_Click(object sender, EventArgs e) {
-            txtResultado.Text += "0";
-            txtOperacao.Text += "0";
-        }
-        private void btnUm_Click(object sender, EventArgs e) {
-            txtResultado.Text += "1";
-            txtOperacao.Text += "1";
-        }
-
-        private void BtnDois_Click(object sender, EventArgs e) {
-            txtResultado.Text += "2";
-            txtOperacao.Text += "2";
+        // DECLARAÇÃO DAS OPERAÇÕES
+        private enum Operacao
+        {
+            Nenhuma,
+            Adicao,
+            Subtracao,
+            Multiplicacao,
+            Divisao,
+            Porcentagem
         }
 
-        private void BtnTres_Click(object sender, EventArgs e) {
-            txtResultado.Text += "3";
-            txtOperacao.Text += "3";
-
-        }
-
-        private void BtnQuatro_Click(object sender, EventArgs e) {
-            txtResultado.Text += "4";
-            txtOperacao.Text += "4";
-        }
-
-        private void BtnCinco_Click(object sender, EventArgs e) {
-            txtResultado.Text += "5";
-            txtOperacao.Text += "5";
-        }
-
-        private void BtnSeis_Click(object sender, EventArgs e) {
-            txtResultado.Text += "6";
-            txtOperacao.Text += "6";
-        }
-
-        private void BtnSete_Click(object sender, EventArgs e) {
-            txtResultado.Text += "7";
-            txtOperacao.Text += "7";
-        }
-
-        private void BtnOito_Click(object sender, EventArgs e) {
-            txtResultado.Text += "8";
-            txtOperacao.Text += "8";
-        }
-        private void BtnNove_Click(object sender, EventArgs e) {
-            txtResultado.Text += "9";
-            txtOperacao.Text += "9";
-        }
-        private void btnAdicao_Click(object sender, EventArgs e) {
-            calculo = decimal.Parse(txtResultado.Text);
-
-            txtOperacao.Text += "+";
-            txtResultado.Text = "";
-
-            adicao = true;
-            subtracao = false;
-            multiplicacao = false;
-            divisao = false;
-            porcentagem = false;
-        }
-        private void btnSubtracao_Click(object sender, EventArgs e) {
-            calculo = decimal.Parse(txtResultado.Text);
-
-            txtOperacao.Text += "-";
-            txtResultado.Text = "";
-
-            adicao = false;
-            subtracao = true;
-            multiplicacao = false;
-            divisao = false;
-            porcentagem = false;
-        }
-
-        private void btnMultiplicacao_Click(object sender, EventArgs e) {
-            calculo = decimal.Parse(txtResultado.Text);
-
-            txtOperacao.Text += "x";
-            txtResultado.Text = "";
-
-            adicao = false;
-            subtracao = false;
-            multiplicacao = true;
-            divisao = false;
-            porcentagem = false;
-        }
-        private void btnDivisao_Click(object sender, EventArgs e) {
-
-            calculo = decimal.Parse(txtResultado.Text);
-
-            txtOperacao.Text += "/";
-            txtResultado.Text = "";
-
-            adicao = false;
-            subtracao = false;
-            multiplicacao = false;
-            divisao = true;
-            porcentagem= false;
-
-        }
-        private void btnPorcentagem_Click(object sender, EventArgs e) {
-            calculo = decimal.Parse(txtResultado.Text);
-
-            txtOperacao.Text += "%";
-            txtResultado.Text = "";
-
-            adicao = false;
-            subtracao = false;
-            multiplicacao = false;
-            divisao = false;
-            porcentagem = true;
-            
-            
-            
-
-            
-        }
-
-        private void btnIgualdade_Click(object sender, EventArgs e) {
-            resultado = true;
-            txtOperacao.Text += "=";
-
-            //OPERAÇÃO DE ADIÇÃO
-            if (adicao == true) {
-                txtResultado.Text = Convert.ToString(Convert.ToDecimal(txtResultado.Text) + calculo);
-                txtOperacao.Text += txtResultado.Text;
-            }
-            //OPERAÇÃO DE SUBTRAÇÃO
-            if (subtracao == true) {
-                txtResultado.Text = Convert.ToString(calculo - Convert.ToDecimal(txtResultado.Text));
-                txtOperacao.Text += txtResultado.Text;
-            }
-            //OPERAÇÃO DE MULTIPLICAÇÃO
-            if (multiplicacao == true) {
-                txtResultado.Text = Convert.ToString(Convert.ToDecimal(txtResultado.Text) * calculo);
-                txtOperacao.Text += txtResultado.Text;
-            }
-            //OPERAÇÃO DE DIVISÃO
-            if (divisao == true) {
-                txtResultado.Text = Convert.ToString(calculo / Convert.ToDecimal(txtResultado.Text));
-                txtOperacao.Text += txtResultado.Text;
-            }
-            if (porcentagem == true) {
-                // Calcula a porcentagem do número atual baseado no valor armazenado
-                decimal valorAtual = Convert.ToDecimal(txtResultado.Text);
-                decimal resultadoPorcentagem = (calculo * valorAtual) / 100;
-
-                txtResultado.Text = resultadoPorcentagem.ToString();
-                txtOperacao.Text += txtResultado.Text;
+        private void AdicionarNumero(string numero)
+        {
+            if (_novaEntrada)
+            {
+                txtResultado.Text = ""; 
+                _novaEntrada = false;
             }
 
+            txtResultado.Text += numero;
+            txtOperacao.Text += numero;
         }
 
+        private void DefinirOperacao(Operacao operacao, string simbolo)
+        {
+            if (decimal.TryParse(txtResultado.Text, out decimal valorAtual))
+            {
+                if (_operacaoAtual != Operacao.Nenhuma)
+                {
+                   
+                    CalcularResultado(valorAtual);
+                }
+                else
+                {
+                    _resultadoAcumulado = valorAtual; 
+                }
 
-        private void btnLimpar_Click(object sender, EventArgs e) {
+                txtOperacao.Text += simbolo;
+                _operacaoAtual = operacao;
+                _novaEntrada = true; 
+            }
+            else
+            {
+                MessageBox.Show("Insira um número válido antes de selecionar a operação.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        //OPERAÇÕES
+        private void CalcularResultado(decimal valorAtual)
+        {
+            switch (_operacaoAtual)
+            {
+                case Operacao.Adicao:
+                    _resultadoAcumulado += valorAtual;
+                    break;
+                case Operacao.Subtracao:
+                    _resultadoAcumulado -= valorAtual;
+                    break;
+                case Operacao.Multiplicacao:
+                    _resultadoAcumulado *= valorAtual;
+                    break;
+                case Operacao.Divisao:
+                    if (valorAtual == 0)
+                    {
+                        MessageBox.Show("Divisão por zero não é permitida.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    _resultadoAcumulado /= valorAtual;
+                    break;
+                case Operacao.Porcentagem:
+                    _resultadoAcumulado = (_resultadoAcumulado * valorAtual) / 100;
+                    break;
+            }
+
+            txtResultado.Text = _resultadoAcumulado.ToString();
+        }
+        //BOTÃO DE IGUAL
+        private void btnIgualdade_Click(object sender, EventArgs e)
+        {
+            if (decimal.TryParse(txtResultado.Text, out decimal valorAtual))
+            {
+                CalcularResultado(valorAtual);
+                txtOperacao.Text += $"={_resultadoAcumulado}";
+                _operacaoAtual = Operacao.Nenhuma;
+                _novaEntrada = true;
+            }
+            else
+            {
+                MessageBox.Show("Insira um número válido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        //BOTÃO C
+        private void btnLimpar_Click(object sender, EventArgs e)
+        {
             txtResultado.Text = "";
             txtOperacao.Text = "";
-
+            _resultadoAcumulado = 0;
+            _operacaoAtual = Operacao.Nenhuma;
+            _novaEntrada = false;
         }
-        private void button1_Click(object sender, EventArgs e) {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e) {
-
-        }
-        private void txtOperacao_TextChanged(object sender, EventArgs e) {
-
-        }
-
-        private void btnVirgula_Click(object sender, EventArgs e) {
-            txtResultado.Text += ",";
-            txtOperacao.Text += ",";
-        }
-
-        private void btnAC_Click(object sender, EventArgs e) {
-            try {
-                string apagar = txtResultado.Text;
-                apagar = apagar.Remove(apagar.Length - 1);
-                txtResultado.Text = apagar;
-                txtOperacao.Text = apagar;
+         //BOTÃO AC
+        private void btnAC_Click(object sender, EventArgs e)
+        {
+            if (txtResultado.Text.Length > 0)
+            {
+                txtResultado.Text = txtResultado.Text.Remove(txtResultado.Text.Length - 1);
+                txtOperacao.Text = txtOperacao.Text.Remove(txtOperacao.Text.Length - 1);
             }
-            catch (Exception) { }
         }
+        //VÍRGULA
+        private void btnVirgula_Click(object sender, EventArgs e)
+        {
+            if (!txtResultado.Text.Contains(","))
+            {
+                AdicionarNumero(",");
+            }
+        }
+        //O QUE CADA BOTÃO MOSTRA
+        private void btnZero_Click(object sender, EventArgs e) => AdicionarNumero("0");
+        private void btnUm_Click(object sender, EventArgs e) => AdicionarNumero("1");
+        private void BtnDois_Click(object sender, EventArgs e) => AdicionarNumero("2");
+        private void BtnTres_Click(object sender, EventArgs e) => AdicionarNumero("3");
+        private void BtnQuatro_Click(object sender, EventArgs e) => AdicionarNumero("4");
+        private void BtnCinco_Click(object sender, EventArgs e) => AdicionarNumero("5");
+        private void BtnSeis_Click(object sender, EventArgs e) => AdicionarNumero("6");
+        private void BtnSete_Click(object sender, EventArgs e) => AdicionarNumero("7");
+        private void BtnOito_Click(object sender, EventArgs e) => AdicionarNumero("8");
+        private void BtnNove_Click(object sender, EventArgs e) => AdicionarNumero("9");
+
+        private void btnAdicao_Click(object sender, EventArgs e) => DefinirOperacao(Operacao.Adicao, "+");
+        private void btnSubtracao_Click(object sender, EventArgs e) => DefinirOperacao(Operacao.Subtracao, "-");
+        private void btnMultiplicacao_Click(object sender, EventArgs e) => DefinirOperacao(Operacao.Multiplicacao, "x");
+        private void btnDivisao_Click(object sender, EventArgs e) => DefinirOperacao(Operacao.Divisao, "/");
+        private void btnPorcentagem_Click(object sender, EventArgs e) => DefinirOperacao(Operacao.Porcentagem, "%");
     }
 }
